@@ -42,7 +42,7 @@
 - (NSArray *) arrayWithImages:(KIImagePager*)pager
 {
     return @[
-            @"https://raw.github.com/kimar/tapebooth/master/Screenshots/Screen1.png",
+            @"http://fanaru.com/doge/image/18360-doge-doge-simple.jpg",
             @"https://raw.github.com/kimar/tapebooth/master/Screenshots/Screen2.png",
             @"https://raw.github.com/kimar/tapebooth/master/Screenshots/Screen3.png"
             ];

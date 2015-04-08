@@ -206,6 +206,7 @@
                 UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView new];
                 activityIndicator.center = (CGPoint){_scrollView.frame.size.width/2, _scrollView.frame.size.height/2};
                 activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+                [activityIndicator setColor:[UIColor blackColor]];
                 [imageView addSubview:activityIndicator];
                 [activityIndicator startAnimating];
                 [_activityIndicators setObject:activityIndicator forKey:[NSString stringWithFormat:@"%d", i]];
