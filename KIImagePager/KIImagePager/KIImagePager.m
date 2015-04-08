@@ -11,7 +11,7 @@
 #define kOverlayHeight      15
 
 #import "KIImagePager.h"
-#import <SDWebImage/SDWebImageDownloader.h>
+#import <SDWebImage/SDWebImageManager.h>
 
 @interface KIImagePagerDefaultImageSource : NSObject <KIImagePagerImageSource>
 @end
@@ -205,7 +205,7 @@
                 // Instantiate and show Actvity Indicator
                 UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView new];
                 activityIndicator.center = (CGPoint){_scrollView.frame.size.width/2, _scrollView.frame.size.height/2};
-                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
                 [imageView addSubview:activityIndicator];
                 [activityIndicator startAnimating];
                 [_activityIndicators setObject:activityIndicator forKey:[NSString stringWithFormat:@"%d", i]];
@@ -448,7 +448,7 @@
 
 -(void) imageWithUrl:(NSURL*)url completion:(KIImagePagerImageRequestBlock)completion
 {
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:url options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+    [[SDWebImageManager sharedManager] downloadImageWithURL:url options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!error) {
             completion(image,nil);
         }else
