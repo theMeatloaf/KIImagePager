@@ -11,6 +11,7 @@
 #define kOverlayHeight      15
 
 #import "KIImagePager.h"
+#import <SDWebImage/SDWebImageDownloader.h>
 
 @interface KIImagePagerDefaultImageSource : NSObject <KIImagePagerImageSource>
 @end
@@ -447,12 +448,14 @@
 
 -(void) imageWithUrl:(NSURL*)url completion:(KIImagePagerImageRequestBlock)completion
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        NSData *imageData = [NSData dataWithContentsOfURL:url];
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            if(completion) completion([UIImage imageWithData:imageData],nil);
-        });
-    });
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:url options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+        if (!error) {
+            completion(image,nil);
+        }else
+        {
+            completion(nil,error);
+        }
+    }];
 }
 
 @end
