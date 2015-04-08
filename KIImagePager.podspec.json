@@ -7,7 +7,11 @@
     "http://kimar.github.io/screenshots/kiimagepager/1ios7.png",
     "http://kimar.github.io/screenshots/kiimagepager/2ios7.png"
   ],
-  "dependency":"SDWebImage":"3.7.1",
+   "dependencies": {
+        "SDWebImage": [
+          "~> 3.7.1"
+        ]
+   },
   "license": {
     "type": "MIT",
     "text": "LICENSE"
