@@ -195,6 +195,7 @@
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:imageFrame];
             [imageView setBackgroundColor:[UIColor clearColor]];
             [imageView setContentMode:[_dataSource contentModeForImage:i inPager:self]];
+            [imageView setClipsToBounds:YES];
             [imageView setTag:i];
 
             if([[aImageUrls objectAtIndex:i] isKindOfClass:[UIImage class]]) {
@@ -205,7 +206,7 @@
                 // Instantiate and show Actvity Indicator
                 UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView new];
                 activityIndicator.center = (CGPoint){_scrollView.frame.size.width/2, _scrollView.frame.size.height/2};
-                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
                 [activityIndicator setColor:[UIColor blackColor]];
                 [imageView addSubview:activityIndicator];
                 [activityIndicator startAnimating];
