@@ -392,6 +392,7 @@
     [_pageControl setCurrentPage:nextPage];
     
     [self updateCaptionLabelForImageAtIndex:nextPage];
+    [self LoadImagesAroundPage:nextPage];
     
     if (self.slideshowShouldCallScrollToDelegate) {
         [self fireDidScrollToIndexDelegateForPage:nextPage];
