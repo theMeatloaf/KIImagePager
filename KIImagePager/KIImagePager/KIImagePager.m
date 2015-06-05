@@ -30,7 +30,7 @@
     NSMutableDictionary *_activityIndicators;
     
     BOOL _indicatorDisabled;
-	BOOL _bounces;
+    BOOL _bounces;
 }
 @end
 
@@ -45,7 +45,7 @@
 - (id)initWithFrame:(CGRect)frame
 {
     if ((self = [super initWithFrame:frame])) {
-		_bounces = YES;
+        _bounces = YES;
         [self initialize];
     }
     return self;
@@ -54,7 +54,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     if ((self = [super initWithCoder:aDecoder])) {
-		_bounces = YES;
+        _bounces = YES;
         // Initialization code
     }
     return self;
@@ -67,9 +67,9 @@
 
 - (void) layoutSubviews
 {
-	for (UIView *view in self.subviews) {
-		[view removeFromSuperview];
-	}
+    for (UIView *view in self.subviews) {
+        [view removeFromSuperview];
+    }
     [self initialize];
 }
 
@@ -150,7 +150,7 @@
     [_captionLabel setBackgroundColor:self.captionBackgroundColor];
     [_captionLabel setTextColor:self.captionTextColor];
     [_captionLabel setFont:self.captionFont];
-
+    
     _captionLabel.alpha = 0.7f;
     _captionLabel.layer.cornerRadius = 5.0f;
     
@@ -172,7 +172,7 @@
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
     _scrollView.delegate = self;
     _scrollView.pagingEnabled = YES;
-	_scrollView.bounces = _bounces;
+    _scrollView.bounces = _bounces;
     _scrollView.showsHorizontalScrollIndicator = NO;
     _scrollView.showsVerticalScrollIndicator = NO;
     _scrollView.autoresizingMask = self.autoresizingMask;
@@ -191,55 +191,60 @@
                                                _scrollView.frame.size.height)];
         
         for (int i = 0; i < [aImageUrls count]; i++) {
-            CGRect imageFrame = CGRectMake(_scrollView.frame.size.width * i, 0, _scrollView.frame.size.width, _scrollView.frame.size.height);
-            UIImageView *imageView = [[UIImageView alloc] initWithFrame:imageFrame];
-            [imageView setBackgroundColor:[UIColor clearColor]];
-            [imageView setContentMode:[_dataSource contentModeForImage:i inPager:self]];
-            [imageView setClipsToBounds:YES];
-            [imageView setTag:i];
-
-            if([[aImageUrls objectAtIndex:i] isKindOfClass:[UIImage class]]) {
-                // Set ImageView's Image directly
-                [imageView setImage:(UIImage *)[aImageUrls objectAtIndex:i]];
-            } else if([[aImageUrls objectAtIndex:i] isKindOfClass:[NSString class]] ||
-                      [[aImageUrls objectAtIndex:i] isKindOfClass:[NSURL class]]) {
-                // Instantiate and show Actvity Indicator
-                UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView new];
-                activityIndicator.center = (CGPoint){_scrollView.frame.size.width/2, _scrollView.frame.size.height/2};
-                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
-                [activityIndicator setColor:[UIColor blackColor]];
-                [imageView addSubview:activityIndicator];
-                [activityIndicator startAnimating];
-                [_activityIndicators setObject:activityIndicator forKey:[NSString stringWithFormat:@"%d", i]];
+            @autoreleasepool {
+                CGRect imageFrame = CGRectMake(_scrollView.frame.size.width * i, 0, _scrollView.frame.size.width, _scrollView.frame.size.height);
+                UIImageView *imageView = [[UIImageView alloc] initWithFrame:imageFrame];
+                [imageView setBackgroundColor:[UIColor clearColor]];
+                [imageView setContentMode:[_dataSource contentModeForImage:i inPager:self]];
+                [imageView setClipsToBounds:YES];
+                [imageView setTag:i];
                 
-                // Asynchronously retrieve image
-                NSURL * imageUrl  = [[aImageUrls objectAtIndex:i] isKindOfClass:[NSURL class]] ? [aImageUrls objectAtIndex:i] : [NSURL URLWithString:(NSString *)[aImageUrls objectAtIndex:i]];
+                if([[aImageUrls objectAtIndex:i] isKindOfClass:[UIImage class]]) {
+                    // Set ImageView's Image directly
+                    [imageView setImage:(UIImage *)[aImageUrls objectAtIndex:i]];
+                } else if([[aImageUrls objectAtIndex:i] isKindOfClass:[NSString class]] ||
+                          [[aImageUrls objectAtIndex:i] isKindOfClass:[NSURL class]]) {
+                    // Instantiate and show Actvity Indicator
+                    UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView new];
+                    activityIndicator.center = (CGPoint){_scrollView.frame.size.width/2, _scrollView.frame.size.height/2};
+                    activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+                    [activityIndicator setColor:[UIColor blackColor]];
+                    [imageView addSubview:activityIndicator];
+                    [activityIndicator startAnimating];
+                    [_activityIndicators setObject:activityIndicator forKey:[NSString stringWithFormat:@"%d", i]];
+                    
+                    // Asynchronously retrieve image
+                    NSURL * imageUrl  = [[aImageUrls objectAtIndex:i] isKindOfClass:[NSURL class]] ? [aImageUrls objectAtIndex:i] : [NSURL URLWithString:(NSString *)[aImageUrls objectAtIndex:i]];
+                    
+                    if(i < 10)
+                    {
+                        //image source is responsible for image retreiving/caching, etc...
+                        [self.imageSource imageWithUrl:imageUrl
+                                            completion:^(UIImage *image, NSError *error)
+                         {
+                             if(!error) [imageView setImage:image];//should we handle error?
+                             else [imageView setImage:nil];
+                             
+                             // Stop and Remove Activity Indicator
+                             UIActivityIndicatorView *indicatorView = (UIActivityIndicatorView *)[_activityIndicators objectForKey:[NSString stringWithFormat:@"%d", i]];
+                             if (indicatorView) {
+                                 [indicatorView stopAnimating];
+                                 [_activityIndicators removeObjectForKey:[NSString stringWithFormat:@"%d", i]];
+                             }
+                         }];
+                    }
+                }
                 
-                //image source is responsible for image retreiving/caching, etc...
-                [self.imageSource imageWithUrl:imageUrl
-                                    completion:^(UIImage *image, NSError *error)
-                 {
-                     if(!error) [imageView setImage:image];//should we handle error?
-                     else [imageView setImage:nil];
-                     
-                     // Stop and Remove Activity Indicator
-                     UIActivityIndicatorView *indicatorView = (UIActivityIndicatorView *)[_activityIndicators objectForKey:[NSString stringWithFormat:@"%d", i]];
-                     if (indicatorView) {
-                         [indicatorView stopAnimating];
-                         [_activityIndicators removeObjectForKey:[NSString stringWithFormat:@"%d", i]];
-                     }
-                 }];
+                // Add GestureRecognizer to ImageView
+                UITapGestureRecognizer *singleTapGestureRecognizer = [[UITapGestureRecognizer alloc]
+                                                                      initWithTarget:self
+                                                                      action:@selector(imageTapped:)];
+                [singleTapGestureRecognizer setNumberOfTapsRequired:1];
+                [imageView addGestureRecognizer:singleTapGestureRecognizer];
+                [imageView setUserInteractionEnabled:YES];
+                
+                [_scrollView addSubview:imageView];
             }
-            
-            // Add GestureRecognizer to ImageView
-            UITapGestureRecognizer *singleTapGestureRecognizer = [[UITapGestureRecognizer alloc]
-                                                                  initWithTarget:self
-                                                                  action:@selector(imageTapped:)];
-            [singleTapGestureRecognizer setNumberOfTapsRequired:1];
-            [imageView addGestureRecognizer:singleTapGestureRecognizer];
-            [imageView setUserInteractionEnabled:YES];
-            
-            [_scrollView addSubview:imageView];
         }
         
         [_countLabel setText:[NSString stringWithFormat:@"%lu", (unsigned long)[[_dataSource arrayWithImages:self] count]]];
@@ -275,13 +280,13 @@
 }
 
 - (BOOL)bounces {
-
-	return _bounces;
+    
+    return _bounces;
 }
 
 - (void)setBounces:(BOOL)bounces {
-	_bounces = bounces;
-	_scrollView.bounces = _bounces;
+    _bounces = bounces;
+    _scrollView.bounces = _bounces;
 }
 
 - (void)setImageCounterDisabled:(BOOL)imageCounterDisabled
@@ -321,6 +326,38 @@
     
     [self updateCaptionLabelForImageAtIndex:currentPage];
     [self fireDidScrollToIndexDelegateForPage:currentPage];
+    
+    [self LoadImagesAroundPage:currentPage];
+}
+
+-(void)LoadImagesAroundPage:(long)page
+{
+    NSArray *aImageUrls = (NSArray *)[_dataSource arrayWithImages:self];
+    
+    long start = MAX(0, page-5);
+    long end = MIN(page+5,aImageUrls.count);
+    for (long i=start; i<end; i++) {
+        @autoreleasepool {
+            UIImageView *imgView = [_scrollView subviews][i];
+            if (!imgView.image) {
+                NSString *url = aImageUrls[i];
+                //image source is responsible for image retreiving/caching, etc...
+                [self.imageSource imageWithUrl:url
+                                    completion:^(UIImage *image, NSError *error)
+                 {
+                     if(!error) [imgView setImage:image];//should we handle error?
+                     else [imgView setImage:nil];
+                     
+                     // Stop and Remove Activity Indicator
+                     UIActivityIndicatorView *indicatorView = (UIActivityIndicatorView *)[_activityIndicators objectForKey:[NSString stringWithFormat:@"%d", i]];
+                     if (indicatorView) {
+                         [indicatorView stopAnimating];
+                         [_activityIndicators removeObjectForKey:[NSString stringWithFormat:@"%d", i]];
+                     }
+                 }];
+            }
+        }
+    }
 }
 
 #pragma mark - Delegate Helper
@@ -350,7 +387,7 @@
     if([_pageControl currentPage] < ([[_dataSource arrayWithImages:self] count] - 1)) {
         nextPage = [_pageControl currentPage] + 1;
     }
-
+    
     [_scrollView scrollRectToVisible:CGRectMake(self.frame.size.width * nextPage, 0, self.frame.size.width, self.frame.size.width) animated:YES];
     [_pageControl setCurrentPage:nextPage];
     
