@@ -342,17 +342,17 @@
             if (!imgView.image) {
                 NSString *url = aImageUrls[i];
                 //image source is responsible for image retreiving/caching, etc...
-                [self.imageSource imageWithUrl:url
+                [self.imageSource imageWithUrl:[NSURL URLWithString:url]
                                     completion:^(UIImage *image, NSError *error)
                  {
                      if(!error) [imgView setImage:image];//should we handle error?
                      else [imgView setImage:nil];
                      
                      // Stop and Remove Activity Indicator
-                     UIActivityIndicatorView *indicatorView = (UIActivityIndicatorView *)[_activityIndicators objectForKey:[NSString stringWithFormat:@"%d", i]];
+                     UIActivityIndicatorView *indicatorView = (UIActivityIndicatorView *)[_activityIndicators objectForKey:[NSString stringWithFormat:@"%ld", i]];
                      if (indicatorView) {
                          [indicatorView stopAnimating];
-                         [_activityIndicators removeObjectForKey:[NSString stringWithFormat:@"%d", i]];
+                         [_activityIndicators removeObjectForKey:[NSString stringWithFormat:@"%ld", i]];
                      }
                  }];
             }
